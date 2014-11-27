@@ -1,0 +1,293 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <link type="text/css" media="all" rel="stylesheet" href="css/metro-bootstrap.min.css" />
+    <link type="text/css" media="all" rel="stylesheet" href="css/metro-bootstrap-responsive.min.css" />
+    <link type="text/css" media="all" rel="stylesheet" href="css/iconFont.min.css" />
+    <script type="text/javascript" src="js/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="js/jquery.widget.min.js"></script>
+    <script type="text/javascript" src="js/metro.min.js"></script>
+    <style type="text/css" media="all">
+        body {
+          height: 100%;
+          margin: 0;
+          padding: 0;
+        }
+        .metro .page {
+          width: 980px;
+          margin: 0 auto;
+          padding: 0 20px;
+        }
+        .description {
+          margin: 10px 0;
+        }
+        .show-grid .row [class*="span"] {
+          line-height: 40px;
+          background: rgba(193, 179, 123, 0.52);
+          text-align: center;
+          min-height: 10px !important;
+        }
+        .color-stack li,
+        #icon-list li {
+          margin-bottom: 5px;
+        }
+        .example > img {
+          margin: 5px;
+          display: inline-block;
+        }
+        .example .image-container {
+          margin: 10px;
+          display: inline-block;
+          vertical-align: middle;
+        }
+        .layout {
+          min-height: 100%;
+          position: relative;
+        }
+        header {
+          height: 45px;
+          position: relative;
+        }
+        footer {
+          width: 100%;
+          height: 25px;
+        }
+        @media only screen and (max-width: 640px) {
+          .prettyprint,
+          .example {
+            display: none;
+          }
+        }
+        .hidden{display:none;}
+        select{display:inline-block;}
+
+        #logs{width:100%;max-height:500px;overflow:auto;}
+        #logs div{margin:2px 0px 2px 0px;padding:2px 10px 2px 10px;}
+        div.logentry{display:none;cursor:pointer;}
+        div.logentry:hover{background-color:#647687;color:#fff;}
+    </style>
+    <script type="text/javascript">
+        var tclogs = {
+            client: null,
+            session: null
+        };
+    </script>
+    <title>Docbase Testing</title>
+</head>
+<body class="metro">
+    <header class="bg-dark">
+        <div class="navigation-bar dark">
+            <div class="navigation-bar-content dark">
+                <a href="/" class="element"><i class="icon-rocket on-left"></i>DocumentDB TC Logs</a>
+                <span class="element-divider">
+                </span>                
+            </div>
+        </div>
+        
+    </header>
+    <div class="page">
+        <div class="page-region-content">
+            <!--<button id="createDB">Create DB</button>
+        <button id="addDocument">Add Document</button><button id="getAll">Get All Logs</button>
+        <button id="countDocs">Count Documents</button>-->
+            <span id="documentCount">Sit tight, we are going to count the # of logs. This will just take a second.</span>
+            <div id="clients"></div>            
+            <div id="logs"></div>
+            <div class="toolbar transparent hidden" id="session_tlbr">
+                <button id="archive_btn" disabled="true" onclick="archiveSession();"><i class="icon-floppy on-left"></i>Archive Sesson</button>
+            </div>
+        </div>
+    </div>
+    <div class="page-footer"></div>
+    <script type="text/javascript">
+        var createDataBase = function () {
+            $.ajax('Docbase.ashx', {
+                data: { 'op': 'create' },
+                success: function (data) {
+                    if (data.response = 'yeah')
+                        $('#createDB').attr('disabled', 'true');
+                }
+            });
+        }
+
+        var addDoc = function () {
+            $.ajax('Docbase.ashx', {
+                data: { 'op': 'createDoc' },
+                success: function (data) {
+                    if (data.response = 'yeah')
+                        console.log(data.response());
+                }
+            });
+        }
+
+        var countDocs = function () {
+            var not = $.Notify({caption: "Counting Logs",
+                content: "this will just take a second",
+                timeout: 5000 // 10 seconds
+            });
+            $.ajax('Docbase.ashx', {
+                data: { 'op': 'count' },
+                success: function (data) {
+                    $("#documentCount").html("<h1>" + data.response + "</h1> Logs and counting...  ");  
+                    getClients();
+                }
+            });
+        }
+
+        var getAll = function () {
+            $.ajax('Docbase.ashx', {
+                data: { 'op': 'all' },
+                success: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+
+                   
+
+        var getClients = function () {
+            var not = $.Notify({
+                caption: "Loading Clients",
+                content: "almost there",
+                timeout: 5000 // 10 seconds
+            });
+            
+            $.ajax('Docbase.ashx', {
+                data: { 'op': 'clientsproc' },
+                success: function (data) {
+                    if (data.clients.length > 0) {
+                        var div = $("<div class='client container'><label>Select a Client</label></div>")
+                        var optionbox = $("<select id='clients'/>");
+                        optionbox.append("<option value='none'>----------------------------------------</option>");
+                        for (var xx = 0; xx < data.clients.length; xx++) {
+                            var select = $("<option value='" + data.clients[xx] + "'>" + data.clients[xx] + "</option>");
+                            optionbox.append(select);
+                        }
+                        div.append(optionbox)
+                        $("#clients").append(div);
+                       
+                        optionbox.on("change", function () {
+                            if ($(this).val() !== 'none'){
+                                $(".session.container").remove();
+                                $("#logs").html("");
+                                $("#session_tlbr").hide();
+                                $("#archive_btn").attr("disabled","true");
+                                getSessions($(this).val());
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        var getSessions = function (client) {
+            var not = $.Notify({
+                caption: "Looking up Sessions",
+                content: "...",
+                timeout: 5000 // 10 seconds
+            });
+            tclogs.client = client;
+            $.ajax('Docbase.ashx', {
+                data : {'op':'clientsessions','client':client},
+                success: function (data) {
+                    sessionlist = data;
+                    if (data.sessions.length > 0) {
+                        var div = $("<div class='session container'><label>Select a Session</label></div>")
+                        var optionbox = $("<select id='session list' class='session list'></select>");
+                        optionbox.append("<option value='none'>----------------------------------------</option>");
+                        for (var xx = 0; xx < data.sessions.length; xx++) {
+                            var temp = JSON.parse(data.sessions[xx]);
+                            if(temp.id !== ""){
+                                var select = $("<option value='" + temp.id + "'>" + temp.time + " " + temp.student + "</option>");
+                                optionbox.append(select);
+                                
+                            }
+                        }
+                        optionbox.on("change", function () {
+                            if ($(this).val() !== 'none') {
+                                getSessionLogs($(this).val());
+                                $("#archive_btn").attr("disabled", "true");
+                                //getSessions($(this).val());
+                            }
+                        });
+                        div.append(optionbox);
+                        $("#clients").append( div);
+                    }
+                }
+            });
+        };
+
+        var getSessionLogs = function (session) {
+            var not = $.Notify({
+                caption: "Grabbing Session Logs", 
+                content: "do do doo",
+                timeout: 5000 // 10 seconds
+            });
+            tclogs.session = session;
+            $("#logs").html("");
+            $.ajax('Docbase.ashx', {
+                data: { 'op': 'allsessionlogs', 'sessionid': session },
+                success: function (data) {
+                    if (data.length > 0) {
+                        for (var xx = 0; xx < data.length; xx++) {
+                            var log = $("<div class='logentry'></div>");
+                            var json = JSON.parse(data[xx]);
+                            log.data("json", json);
+                            log.html(json.Timestamp +"    <b>Course Name</b> : " + json.CourseName + "    <b>Module</b> : " + json.ModuleName + "    <b>Call</b> : " + json.Function);
+                            log.on("click", function () {
+                                $.Dialog({
+                                    overlay: true,
+                                    shadow: true,
+                                    flat: true,
+                                    title: 'Log Data',
+                                    content: json.CourseName
+                                });
+                            });
+                            $("#logs").append(log);
+                            log.fadeIn("slow");
+                            $("#session_tlbr").show();
+                            $("#archive_btn").removeAttr("disabled");
+                        }
+                    }
+                }
+            });
+
+            
+
+        }
+
+        var archiveSession = function () {
+            $.ajax('Docbase.ashx', {
+                data: { 'op': 'archiveSession', 'sessionid': tclogs.session },
+                success: function (data) {
+                    console.log(data);
+                }
+            });
+
+        }
+       // var checkDBCount = window.setInterval(function () { countDocs() }, 30000);
+        $(document).ready(function () {
+            countDocs();
+        });
+
+        var distinct = function (json) {
+            var lookup = {};
+            var items = json;
+            var result = [];
+
+            for (var item, i = 0; item = JSON.parse(items[i++]);) {
+                var name = item.id;
+
+                if (!(name in lookup)) {
+                    lookup[name] = 1;
+                    result.push(name);
+                }
+            }
+            return result;
+        }
+        
+    </script>   
+</body>
+</html>

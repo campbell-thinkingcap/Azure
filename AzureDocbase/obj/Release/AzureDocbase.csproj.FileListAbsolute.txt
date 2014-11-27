@@ -1,0 +1,11 @@
+C:\Users\Campbell\Documents\Visual Studio 2013\Projects\AzureDocbase\AzureDocbase\bin\AzureDocbase.dll.config
+C:\Users\Campbell\Documents\Visual Studio 2013\Projects\AzureDocbase\AzureDocbase\bin\AzureDocbase.dll
+C:\Users\Campbell\Documents\Visual Studio 2013\Projects\AzureDocbase\AzureDocbase\bin\AzureDocbase.pdb
+C:\Users\Campbell\Documents\Visual Studio 2013\Projects\AzureDocbase\AzureDocbase\bin\Microsoft.Azure.Documents.Client.dll
+C:\Users\Campbell\Documents\Visual Studio 2013\Projects\AzureDocbase\AzureDocbase\bin\Newtonsoft.Json.dll
+C:\Users\Campbell\Documents\Visual Studio 2013\Projects\AzureDocbase\AzureDocbase\bin\Newtonsoft.Json.xml
+C:\Users\Campbell\Documents\Visual Studio 2013\Projects\AzureDocbase\AzureDocbase\obj\Release\AzureDocbase.dll
+C:\Users\Campbell\Documents\Visual Studio 2013\Projects\AzureDocbase\AzureDocbase\obj\Release\AzureDocbase.pdb
+C:\Users\Campbell\Documents\Visual Studio 2013\Projects\AzureDocbase\AzureDocbase\bin\fonts\HouseSlant.woff
+C:\Users\Campbell\Documents\Visual Studio 2013\Projects\AzureDocbase\AzureDocbase\bin\fonts\HouseSlant.eot
+C:\Users\Campbell\Documents\Visual Studio 2013\Projects\AzureDocbase\AzureDocbase\obj\Release\AzureDocbase.csprojResolveAssemblyReference.cache

@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Docbase Testing</title>
+    <script type="text/javascript" src="js/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="js/documentdbclient-0.9.0.js"></script>
+    <style type="text/css" media="all">
+       
+        @charset "UTF-8";
+        @font-face {
+          font-family: 'HouseSlant';
+          src: url("/fonts/HouseSlant.eot?#iefix") format("embedded-opentype"), url("/fonts/HouseSlant.woff") format("woff");
+          font-weight: normal;
+          font-style: normal; }
+        body,html,div,span,h1,h2,h3,h4,ol,li{font-size:1em;padding:0px;margin:0px;font-family: 'HouseSlant', sans-serif;}
+        html,body{height:100%;}
+        h1.title{font-size:24pt;}
+        .content{width:80%;margin:0px auto 0px auto;padding:20px 0px;}
+
+        #documentCount{
+            font-size:1em;
+            font-weight:bold;
+        }
+        #documentCount h1{font-size:3em;}
+    </style>
+</head>
+<body>
+    
+    <div class="content">
+        <h1 class="title">DocumentDB Logs</h1>
+        <!--<button id="createDB">Create DB</button>
+        <button id="addDocument">Add Document</button><button id="getAll">Get All Logs</button>
+        <button id="countDocs">Count Documents</button>--><span id="documentCount">Sit tight, we are going to count the # of logs. This will just take a second.</span>
+        
+    </div>
+    <script type="text/javascript">
+        var createDataBase = function () {
+            $.ajax('Docbase.ashx', {
+                data: { 'op': 'create' },
+                success: function (data) {
+                    if (data.response = 'yeah')
+                        $('#createDB').attr('disabled', 'true');
+                }
+            });
+        }
+
+        var addDoc = function () {
+            $.ajax('Docbase.ashx', {
+                data: { 'op': 'createDoc' },
+                success: function (data) {
+                    if (data.response = 'yeah')
+                        console.log(data.response());
+                }
+            });
+        }
+
+        var countDocs = function () {
+            $.ajax('Docbase.ashx', {
+                data: { 'op': 'count' },
+                success: function (data) {
+                    $("#documentCount").html("<h1>" + data.response + "</h1> and counting...  ");
+                    getClients();
+                }
+            });
+        }
+
+        var getAll = function () {
+            $.ajax('Docbase.ashx', {
+                data: { 'op': 'all' },
+                success: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+
+        var getClients = function () {
+            $.ajax('Docbase.ashx', {
+                data: { 'op': 'client' },
+                success: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+
+       // var checkDBCount = window.setInterval(function () { countDocs() }, 30000);
+        $(document).ready(function () {
+            
+            $('#createDB').on('click', function () {
+                createDataBase();
+            });
+
+            $('#addDocument').on('click', function () {
+                addDoc();
+            });
+
+            $('#countDocs').on('click', function () {
+                countDocs();
+            });
+
+            $('#getAll').on('click', function () {
+                    getAll();
+            });
+
+
+        });
+        countDocs();
+        
+    </script>   
+</body>
+</html>
